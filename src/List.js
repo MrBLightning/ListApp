@@ -221,10 +221,12 @@ class List extends Component {
         for (var i = 0; i < lngCountries; i++) {
             if (i === index){
                 arrayCountries[i] = { ...arrayCountries[i], CountrySelected: true };
+                console.log(arrayCountries[i].Country, arrayCountries[i].CountrySelected);
             }else{
                 arrayCountries[i] = { ...arrayCountries[i], CountrySelected: false };
             }
         }
+        
         let arrayCities = [...state.Cities];
         let lngCities = arrayCities.length;
         let CTIndex = 0;
@@ -256,6 +258,7 @@ class List extends Component {
             CityIndex: CTIndex
         };
       });
+    return true;
     //console.log(e.currentTarget);
     //return e.currentTarget.dataset.id;
   }
@@ -269,7 +272,7 @@ class List extends Component {
         for (var i = 0; i < lngCities; i++) {
             if (i === index){
                 arrayCities[i] = { ...arrayCities[i], CitySelected: true };
-                console.log(arrayCities[i].City, arrayCities[i].CitySelected);
+                // console.log(arrayCities[i].City, arrayCities[i].CitySelected);
             }else{
                 arrayCities[i] = { ...arrayCities[i], CitySelected: false };
             }
@@ -354,6 +357,10 @@ class List extends Component {
                         />
                     </div> 
                     */}   
+                    <div className="column-2">
+                        {/*<img src="../public/Simple-Location-Picker.png" alt="map"/>*/}
+                        <img src="https://i1.wp.com/www.cssscript.com/wp-content/uploads/2018/03/Simple-Location-Picker.png?fit=561%2C421&ssl=1" alt="map" />
+                    </div>
                 </div>
             );
         } else {
