@@ -179,6 +179,7 @@ class List extends Component {
                 }
             }
         }
+        CityList[CTIndex].CitySelected = true;
 
         return {
             Countries: state.Countries,
@@ -211,10 +212,10 @@ class List extends Component {
     });
   };
 
-  CountryhandleCheck(e) {
+  async CountryhandleCheck(e) {
     let obj = this.state.Countries.find(x => x.Country === e.currentTarget.dataset.id);
     let index = this.state.Countries.indexOf(obj);
-    this.setState(state => {
+    await this.setState(state => {
         let arrayCountries = [...state.Countries];
         let lngCountries = arrayCountries.length;
         for (var i = 0; i < lngCountries; i++) {
@@ -255,7 +256,8 @@ class List extends Component {
             CityIndex: CTIndex
         };
       });
-    return e.currentTarget.dataset.id;
+    //console.log(e.currentTarget);
+    //return e.currentTarget.dataset.id;
   }
 
   CityhandleCheck(e) {
@@ -267,6 +269,7 @@ class List extends Component {
         for (var i = 0; i < lngCities; i++) {
             if (i === index){
                 arrayCities[i] = { ...arrayCities[i], CitySelected: true };
+                console.log(arrayCities[i].City, arrayCities[i].CitySelected);
             }else{
                 arrayCities[i] = { ...arrayCities[i], CitySelected: false };
             }
@@ -316,27 +319,30 @@ class List extends Component {
                     <div className="header-2"><div className="header">Map</div></div>
                     <div className="column-1">
                         {this.state.Countries.map(item => (
-                            <div onClick={this.CountryhandleCheck} className={{ display: item.CountrySelected ? 'Selected' : '' }} data-id={item.Country} key={item.key}>
-                                {item.Country} {item.NumOfCities}
+                            <div onClick={this.CountryhandleCheck} className={item.CountrySelected ? 'Selected' : 'NotSelected' } data-id={item.Country} key={item.key}>
+                            {/*console.log(item.Country, item.CountrySelected)*/}        
+                            {item.Country} {item.NumOfCities}
                             </div>
                         ))}
                     </div>
                     <div className="column-1">
                         {this.state.Cities.map(item => (
-                            <div style={{ display: item.Display ? 'block' : 'none' }} onClick={this.CityhandleCheck} className={{ display: item.CitySelected ? 'Selected' : '' }} data-id={item.City} key={item.key}>
-                                {item.Country} {item.City} {item.NumOfCompanies}
+                            <div style={{ display: item.Display ? 'block' : 'none' }} onClick={this.CityhandleCheck} className={ item.CitySelected ? 'Selected' : 'NotSelected' } data-id={item.City} key={item.key}>
+                            {/*console.log(item.City, item.CitySelected)*/}        
+                            {item.Country} {item.City} {item.NumOfCompanies}
                             </div>
                         ))}
                     </div> 
                     <div className="column-1">
                         <div>
                         {this.state.Companies.map(item => (
-                            <div style={{ display: item.Display ? 'block' : 'none' }} className={{ display: item.CompanySelected ? 'Selected' : '' }} data-id={item.Company} key={item.key}>
+                            <div style={{ display: item.Display ? 'block' : 'none' }} className={item.CompanySelected ? 'Selected' : '' } data-id={item.Company} key={item.key}>
                                 {item.City} {item.Company}
                             </div>
                         ))}
                         </div>
                     </div>
+                    {/*
                     <div className="column-2">   
                         <SimpleGoogleMap
                             containerElement={
@@ -346,7 +352,8 @@ class List extends Component {
                                 <div className="map" />
                             }
                         />
-                    </div>    
+                    </div> 
+                    */}   
                 </div>
             );
         } else {
