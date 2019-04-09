@@ -1,3 +1,4 @@
+/*Original css added for React App*/
 body {
   margin: 0;
   padding: 0;
@@ -12,3 +13,83 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+/*Css to display lists in flexbox*/
+.Container{
+  width: 80%;
+  height: 20%;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  align-content: stretch;
+  margin: auto;
+  position: absolute;
+  top: 15%;
+  left: 10%;
+  /* overflow: hidden; */
+  background-color: white;
+  border-radius: 10px 10px 10px 10px;
+  box-shadow: 3px 3px 20px rgba(0, 0, 0, .5);
+}
+
+.header-1{
+  flex: 1 1 0;
+  /* flex-basis:16.6%;  */
+  /* flex-basis:30%; */
+  flex-basis:20%;
+}
+
+.header-2{
+  flex: 1 1 0;
+  flex-basis:40%;
+}
+
+.column-1{
+  flex: 1 1 0;
+  /* flex-basis:16.6%;  */
+  /* flex-basis:30%; */
+  flex-basis:20%;
+  overflow: scroll;
+  padding-left:10px;
+  padding-bottom:10px;
+  color:#007aff;
+}
+
+.column-1:hover{
+  cursor: pointer;
+}
+
+.column-2{
+  flex: 2 1 0;
+  flex-basis:40%;
+  width:40%;
+  /* overflow: scroll; */
+  background:blue;
+  padding-left:10px;
+  padding-bottom:10px;
+}
+
+.Selected{
+  background-color:#007aff;
+  color:white; 
+  padding-left:5px;
+  margin-top:5px;
+  margin-bottom:5px;
+  padding-top:5px;
+  padding-bottom:5px;
+  border-radius: 5px 5px 5px 5px;
+}
+
+.header {
+  padding: 10px;
+  padding-bottom: 2px;
+  font-weight: bold;
+  border-bottom: 1px solid black;
+}
+
+.wrapper {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+
