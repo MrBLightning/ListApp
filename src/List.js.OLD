@@ -316,63 +316,71 @@ class List extends Component {
    CityhandleCheck(e) {
     let obj = this.state.Cities.find(x => x.City === e.currentTarget.dataset.id);
     let index = this.state.Cities.indexOf(obj);
-
-    let arrayCities = this.state.Cities;
-    let lngCities = arrayCities.length;
-    let SelectIndex = 0;
-    for (var i = lngCities; i >= 0; i--) {
-        arrayCities[i] = { ...arrayCities[i], CitySelected: false };
-        if (i === index){
-            arrayCities[i] = { ...arrayCities[i], display: true };
-            SelectIndex = i;
-        }else{
-            arrayCities[i] = { ...arrayCities[i], display: false };
+     this.setState(state => {
+        let arrayCities = [...state.Cities];
+        let lngCities = arrayCities.length;
+        let SelectIndex = 0;
+        for (var i = lngCities; i >= 0; i--) {
+            arrayCities[i] = { ...arrayCities[i], CitySelected: false };
+            if (i === index){
+                arrayCities[i] = { ...arrayCities[i], display: true };
+                SelectIndex = i;
+            }else{
+                arrayCities[i] = { ...arrayCities[i], display: false };
+            }
         }
-    }
-    arrayCities[SelectIndex].CitySelected = true;
+        arrayCities[SelectIndex].CitySelected = true;
 
-    let arrayCompanies = this.state.Companies;
-    let lngCompanies = arrayCompanies.length;
-    for (var y = lngCompanies; y >= 0; y--) {
-        arrayCompanies[y] = { ...arrayCompanies[y], CompanySelected: false };
-        if (arrayCompanies[y].City === arrayCities[index].City){
-            arrayCompanies[y] = { ...arrayCompanies[y], Display: true };
-            SelectIndex = y;
-        }else{
-            arrayCompanies[y] = { ...arrayCompanies[y], Display: false };
+        let arrayCompanies = [...state.Companies];
+        let lngCompanies = arrayCompanies.length;
+        for (var y = lngCompanies; y >= 0; y--) {
+            arrayCompanies[y] = { ...arrayCompanies[y], CompanySelected: false };
+            if (arrayCompanies[y].City === arrayCities[index].City){
+                arrayCompanies[y] = { ...arrayCompanies[y], Display: true };
+                SelectIndex = y;
+            }else{
+                arrayCompanies[y] = { ...arrayCompanies[y], Display: false };
+            }
         }
-    }
-    arrayCompanies[SelectIndex].CompanySelected = true;
+        arrayCompanies[SelectIndex].CompanySelected = true;
 
-    //set the new state for 2 arrays
-    this.setState({ 
-        Cities: arrayCities,
-        Companies: arrayCompanies,
-        CityIndex: index }) 
-
+        return {
+            Countries: state.Countries,
+            Cities: arrayCities,
+            Companies: arrayCompanies,
+            CountryIndex: state.CountryIndex,
+            CityIndex: index
+        };
+      });
     //return e.currentTarget.dataset.id;
   }
 
    CompanyhandleCheck(e) {
     let obj = this.state.Companies.find(x => x.Company === e.currentTarget.dataset.id);
     let index = this.state.Companies.indexOf(obj);
-
-    let arrayCompanies = this.state.Companies;
-    let lngCompanies = arrayCompanies.length;
-    let SelectIndex = 0;
-    for (var i = lngCompanies; i >= 0; i--) {
-        arrayCompanies[i] = { ...arrayCompanies[i], CompanySelected: false };
-        if (i === index){
-            arrayCompanies[i] = { ...arrayCompanies[i], Display: true };
-            SelectIndex = i;
-        }else{
-            arrayCompanies[i] = { ...arrayCompanies[i], Display: false };
+     this.setState(state => {
+        let arrayCompanies = [...state.Companies];
+        let lngCompanies = arrayCompanies.length;
+        let SelectIndex = 0;
+        for (var i = lngCompanies; i >= 0; i--) {
+            arrayCompanies[i] = { ...arrayCompanies[i], CompanySelected: false };
+            if (i === index){
+                arrayCompanies[i] = { ...arrayCompanies[i], Display: true };
+                SelectIndex = i;
+            }else{
+                arrayCompanies[i] = { ...arrayCompanies[i], Display: false };
+            }
         }
-    }
-    arrayCompanies[SelectIndex].CompanySelected = true;
+        arrayCompanies[SelectIndex].CompanySelected = true;
 
-    this.setState({Companies: arrayCompanies})
-
+        return {
+            Countries: state.Countries,
+            Cities: state.Cities,
+            Companies: arrayCompanies,
+            CountryIndex: state.CountryIndex,
+            CityIndex: state.CityIndex
+        };
+      });
     //return e.currentTarget.dataset.id;
   }
 
@@ -460,6 +468,7 @@ class List extends Component {
                             )}
                         />
                         */}
+                        {map}
                     </div> 
                        
                     {/* 
