@@ -10,6 +10,7 @@ class SimpleMap extends Component {
     super(props);
     this.state = {
       PositionObj: {latitude: 32.087312, longitude: 34.804063},
+      DefCenter: {lat: 32.087312, lng: 34.804063},
       Address: '',
       zoom: 14
     };  
@@ -31,13 +32,14 @@ class SimpleMap extends Component {
 
     // Get latidude & longitude from address.
     if(this.props.Address !== this.state.Address){
+      console.log("original loc: ",this.state.Address, " new loc: ",this.props.Address);
       geo.find(this.props.Address, (err, res) => {
         let pos = {latitude: NaN, longitude: NaN};
         if (err) {
           console.error(err);
           //return pos;
           this.setState({
-            PositionObj: this.props.DefCenter,
+            PositionObj: this.state.PositionObj,
             Address: this.props.Address
           });   
         } else {
@@ -51,6 +53,14 @@ class SimpleMap extends Component {
               PositionObj: pos,
               Address: this.props.Address
             });
+          }else{
+            this.setState({
+              PositionObj: this.state.PositionObj,
+              Address: this.props.Address
+            });
+          }
+          if(this.state.PositionObj !== undefined || isNaN(this.state.PositionObj.lat) || isNaN(this.state.PositionObj.lng)){
+            this.setState({PositionObj: this.state.PositionObj});
           }
         }
       });
@@ -60,8 +70,9 @@ class SimpleMap extends Component {
       <div className="Map">
         <GoogleMapReact
           bootstrapURLKeys = {{ key: 'AIzaSyAgkg5LJYfuOLhqYdQIVxNUHLDCzJdSRr' }}
-          defaultCenter = {this.state.PositionObj}
+          defaultCenter = {this.state.DefCenter}
           defaultZoom = {this.state.zoom}
+          center = {this.state.PositionObj}
         >
 
         {/*<AnyReactComponent lat={32.087312} lng={34.804063} />*/}

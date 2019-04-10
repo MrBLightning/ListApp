@@ -288,7 +288,7 @@ class List extends Component {
     //return e.currentTarget.dataset.id;
   }
 
-   CompanyhandleCheck(e) {
+  CompanyhandleCheck(e) {
     let obj = this.state.Companies.find(x => x.Company === e.currentTarget.dataset.id);
     let index = this.state.Companies.indexOf(obj);
 

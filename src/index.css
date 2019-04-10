@@ -146,7 +146,8 @@ img{
 
 .markerItem{
 display: flex;
-justify-content: start;
+/*justify-content: start;*/
+flex: start;
 border-bottom: 1px solid rgba(59, 135, 233, 0.7);
 margin: 2%;
 }
