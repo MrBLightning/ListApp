@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { GoogleMap, withGoogleMap } from 'react-google-maps';
 import geocoder from 'google-geocoder';
+import ReactGoogleMapLoader from "react-google-maps-loader";
+import map from '../src/map';
 
 class List extends Component {
     constructor(props) {
@@ -13,6 +15,7 @@ class List extends Component {
             CityIndex: 0,
             //these props are for the map
             googleMapUrl: `https://maps.googleapis.com/maps/api/js?key=AIzaSyAgkg5LJYfuOLhqYdQIVxNUHLDCzJdSRr`,
+            APIKey: 'AIzaSyAgkg5LJYfuOLhqYdQIVxNUHLDCzJdSRr',
             zoom: 11,
             center: { lat: 29.969516, lng: -90.103866 },
             markers: [],
@@ -25,9 +28,11 @@ class List extends Component {
         this.parseDataCompanies = this.parseDataCompanies.bind(this);
         this.CountryhandleCheck = this.CountryhandleCheck.bind(this);
         this.CityhandleCheck = this.CityhandleCheck.bind(this);
-        this.CompanyhandleCheck = this.CompanyhandleCheck.bind(this);        
+        this.CompanyhandleCheck = this.CompanyhandleCheck.bind(this);  
+        this.FindLatLong = this.FindLatLong.bind(this);      
     }
 
+  //First thing, get the Clients.json file and load the data from it  
   componentDidMount() {
     fetch('/clients.json')
       .then(res => res.json())
@@ -66,6 +71,19 @@ class List extends Component {
             return a[property].localeCompare(b[property]);
         }        
     }
+  }
+
+  FindLatLong(address, callback){
+    // var geocoder = new google.maps.Geocoder();
+
+    // geocoder.geocode({ 'address': address }, function (results, status) {
+    //     if (status == google.maps.GeocoderStatus.OK) {
+    //         var lat = results[0].geometry.location.lat();
+    //         var lng = results[0].geometry.location.lng();
+    //         callback({ Status: "OK", Latitude: lat, Longitude: lng });
+    //     }
+    // });
+
   }
 
   parseDataCountries(data) {
@@ -211,13 +229,14 @@ class List extends Component {
                 return pos;
               }
             }}); 
-        if(PositionObj !== undefined){
-            console.log(PositionObj);
-            CompanyList[SelectIndex].Position = PositionObj;
-        } else{
-            console.log("didn't work");
-        }    
-
+        // this.FindLatLong(CompanyList[SelectIndex].CompanyAddress, function(data) {
+        //     if(data !== undefined){
+        //         console.log(data);
+        //         CompanyList[SelectIndex].Position = data;
+        //     } else{
+        //         console.log("didn't work");
+        //     } 
+        // }); 
 
         return {
             Countries: state.Countries,
@@ -368,13 +387,25 @@ class List extends Component {
     //       center={props.center}
     //     />
     // ));
-    const SimpleGoogleMap = withGoogleMap(props => (
-        <GoogleMap
-          googleMapUrl={this.state.googleMapUrl}
-          zoom={this.state.zoom}
-          center={this.state.center}
-        />
-    ));    
+    // const SimpleGoogleMap = withGoogleMap(props => (
+    //     <GoogleMap
+    //       googleMapUrl={this.state.googleMapUrl}
+    //       zoom={this.state.zoom}
+    //       center={this.state.center}
+    //     />
+    // ));    
+    // const SimpleGoogleMap = () =>
+    //         <ReactGoogleMapLoader
+    //             params={{
+    //                 key: this.state.APIKey, // Define your api key here
+    //                 libraries: "places,geometry", // To request multiple libraries, separate them with a comma
+    //             }}
+    //             render={googleMaps =>
+    //                 googleMaps && (
+    //                 <div>Google Maps is loaded !</div>
+    //             )}
+    //         />
+
     if (this.state.Countries){ 
         if(this.state.Countries.length > 0){
             return (
@@ -410,6 +441,7 @@ class List extends Component {
                     </div>
                     
                     <div className="column-2">   
+                        {/*
                         <SimpleGoogleMap
                             containerElement={
                                 <div className="mapContainer" />
@@ -418,6 +450,20 @@ class List extends Component {
                                 <div className="map" />
                             }
                         />
+                        */}
+                        {/*
+                        <ReactGoogleMapLoader
+                            params={{
+                            key: this.state.APIKey, // Define your api key here
+                            libraries: "places,geometry", // To request multiple libraries, separate them with a comma
+                            }}
+                            render={googleMaps =>
+                            googleMaps && (
+                            <div>Google Maps is loaded !</div>
+                            )}
+                        />
+                        */}
+                        {map}
                     </div> 
                        
                     {/* 
