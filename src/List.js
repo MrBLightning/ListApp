@@ -25,6 +25,7 @@ class List extends Component {
         this.parseDataCompanies = this.parseDataCompanies.bind(this);
         this.CountryhandleCheck = this.CountryhandleCheck.bind(this);
         this.CityhandleCheck = this.CityhandleCheck.bind(this);
+        this.CompanyhandleCheck = this.CompanyhandleCheck.bind(this);        
     }
 
   componentDidMount() {
@@ -124,10 +125,6 @@ class List extends Component {
         let obj = CompanyList.find(x => x.CompanyName === data[i].CompanyName);
         let index = CompanyList.indexOf(obj);
         if(index < 0){
-            //Use the geocoder with the Google API Key to get the position of each company
-            const geo = geocoder({
-                key: "AIzaSyAgkg5LJYfuOLhqYdQIVxNUHLDCzJdSRrs", //Google API Key
-              });
             let CompanyListObj = {
                 City: data[i].City, 
                 Display: false, 
@@ -135,22 +132,8 @@ class List extends Component {
                 CompanySelected: false, 
                 key: Math.random() + i, 
                 CompanyAddress: data[i].Address + ", " +  data[i].City + ", " + data[i].Country,
-                Position: geo.find(data[i].Address + ", " +  data[i].City + ", " + data[i].Country, (err, res) => {
-                    let pos = {latitude: 0, longitude: 0};
-                    if (err) {
-                      console.error(err);
-                      return pos;   
-                    } else {
-                      if(res[0] !== undefined){
-                        let latitude = res[0].location.lat;
-                        let longitude = res[0].location.lng;
-                        pos = {latitude, longitude};
-                        //console.log(pos);
-                        return pos;
-                      }
-                    }})
+                Position: {latitude: 0, longitude: 0}
             };
-            console.log(CompanyListObj);
             CompanyList.push(CompanyListObj);
         }
     }
@@ -158,7 +141,7 @@ class List extends Component {
     return CompanyList;
   }
 
-  onLoad = data => {
+  onLoad = async data => {
     this.setState({
         Countries: this.parseDataCountries(data.Customers),
         Cities: this.parseDataCities(data.Customers),
@@ -171,6 +154,7 @@ class List extends Component {
         let CTIndex = 0;
         for (var i = lngCities; i >= 0; i--) {
             if(CityList[i] !== undefined){
+                CityList[i].CitySelected = false;
                 if (CityList[i].Country === state.Countries[0].Country){
                     CityList[i].Display = true;
                     CTIndex = i;
@@ -191,16 +175,49 @@ class List extends Component {
     });
     //make sure after the sort that the first element of the Companies array corresponding to the first city (CitySelected) 
     //that is corresponding to the first country (CountrySelected) is picked
-    this.setState(state => {
+    await this.setState(async state => {
         let CompanyList = [...state.Companies];
         let lngCompanies = CompanyList.length;
-        for (var i = 0; i < lngCompanies; i++) {
-            if (CompanyList[i].City === state.Cities[state.CityIndex].City){
-                CompanyList[i].Display = true;
-            }else{
-                CompanyList[i].Display = false;
+        let SelectIndex = 0;
+        for (var i = lngCompanies; i >= 0; i--) {
+            if(CompanyList[i] !== undefined){
+                CompanyList[i].CompanySelected = false;
+                if (CompanyList[i].City === state.Cities[state.CityIndex].City){
+                    CompanyList[i].Display = true;
+                    SelectIndex = i;
+                }else{
+                    CompanyList[i].Display = false;
+                }
             }
         }
+        CompanyList[SelectIndex].CompanySelected = true;
+
+        //Use the geocoder with the Google API Key to get the position of the selected company
+        const geo = geocoder({
+            key: "AIzaSyAgkg5LJYfuOLhqYdQIVxNUHLDCzJdSRrs", //Google API Key
+          });
+        //the geo.find function from the geocoder object converts the address to a set of latitude and longitude (Position) 
+        let PositionObj = await geo.find(CompanyList[SelectIndex].CompanyAddress, (err, res) => {
+            let pos = {latitude: 0, longitude: 0};
+            if (err) {
+              console.error(err);
+              return pos;   
+            } else {
+              if(res[0] !== undefined){
+                let latitude = res[0].location.lat;
+                let longitude = res[0].location.lng;
+                pos = {latitude, longitude};
+                console.log("inside", pos);
+                return pos;
+              }
+            }}); 
+        if(PositionObj !== undefined){
+            console.log(PositionObj);
+            CompanyList[SelectIndex].Position = PositionObj;
+        } else{
+            console.log("didn't work");
+        }    
+
 
         return {
             Countries: state.Countries,
@@ -218,37 +235,47 @@ class List extends Component {
     await this.setState(state => {
         let arrayCountries = [...state.Countries];
         let lngCountries = arrayCountries.length;
-        for (var i = 0; i < lngCountries; i++) {
+        let SelectIndex = 0;
+        for (var i = lngCountries; i >= 0; i--) {
+            arrayCountries[i] = { ...arrayCountries[i], CountrySelected: false };
             if (i === index){
-                arrayCountries[i] = { ...arrayCountries[i], CountrySelected: true };
-                console.log(arrayCountries[i].Country, arrayCountries[i].CountrySelected);
+                arrayCountries[i] = { ...arrayCountries[i], Display: true };
+                SelectIndex = i;
             }else{
-                arrayCountries[i] = { ...arrayCountries[i], CountrySelected: false };
+                arrayCountries[i] = { ...arrayCountries[i], Display: false };
             }
         }
-        
+        arrayCountries[SelectIndex].CountrySelected = true;
+
         let arrayCities = [...state.Cities];
         let lngCities = arrayCities.length;
         let CTIndex = 0;
         for (var y = lngCities; y >= 0; y--) {
             if(arrayCities[y] !== undefined){
+                arrayCities[y] = { ...arrayCities[y], CitySelected: false };
                 if (arrayCities[y].Country === arrayCountries[state.CountryIndex].Country){
                     arrayCities[y] = { ...arrayCities[y], Display: true };
+                    SelectIndex = y;
                     CTIndex = y;
                 }else{
                     arrayCities[y] = { ...arrayCities[y], Display: false };
                 }
             }
         }
+        arrayCities[SelectIndex].CitySelected = true;
+
         let arrayCompanies = [...state.Companies];
         let lngCompanies = arrayCompanies.length;
-        for (var z = 0; z < lngCompanies; z++) {
+        for (var z = lngCompanies; z >= 0; z--) {
+            arrayCompanies[z] = { ...arrayCompanies[z], CompanySelected: false };
             if (arrayCompanies[z].City === arrayCities[CTIndex].City){
                 arrayCompanies[z] = { ...arrayCompanies[z], Display: true };
+                SelectIndex = z;
             }else{
                 arrayCompanies[z] = { ...arrayCompanies[z], Display: false };
             }
         }
+        arrayCompanies[SelectIndex].CompanySelected = true;
 
         return {
             Countries: arrayCountries,
@@ -258,34 +285,41 @@ class List extends Component {
             CityIndex: CTIndex
         };
       });
-    return true;
     //console.log(e.currentTarget);
     //return e.currentTarget.dataset.id;
   }
 
-  CityhandleCheck(e) {
+  async CityhandleCheck(e) {
     let obj = this.state.Cities.find(x => x.City === e.currentTarget.dataset.id);
     let index = this.state.Cities.indexOf(obj);
-    this.setState(state => {
+    await this.setState(state => {
         let arrayCities = [...state.Cities];
         let lngCities = arrayCities.length;
-        for (var i = 0; i < lngCities; i++) {
+        let SelectIndex = 0;
+        for (var i = lngCities; i >= 0; i--) {
+            arrayCities[i] = { ...arrayCities[i], CitySelected: false };
             if (i === index){
-                arrayCities[i] = { ...arrayCities[i], CitySelected: true };
-                // console.log(arrayCities[i].City, arrayCities[i].CitySelected);
+                arrayCities[i] = { ...arrayCities[i], display: true };
+                SelectIndex = i;
             }else{
-                arrayCities[i] = { ...arrayCities[i], CitySelected: false };
+                arrayCities[i] = { ...arrayCities[i], display: false };
             }
         }
+        arrayCities[SelectIndex].CitySelected = true;
+
         let arrayCompanies = [...state.Companies];
         let lngCompanies = arrayCompanies.length;
-        for (var y = 0; y < lngCompanies; y++) {
+        for (var y = lngCompanies; y >= 0; y--) {
+            arrayCompanies[y] = { ...arrayCompanies[y], CompanySelected: false };
             if (arrayCompanies[y].City === arrayCities[index].City){
-                arrayCompanies[y] = { ...arrayCities[y], Display: true };
+                arrayCompanies[y] = { ...arrayCompanies[y], Display: true };
+                SelectIndex = y;
             }else{
-                arrayCities[y] = { ...arrayCities[y], Display: false };
+                arrayCompanies[y] = { ...arrayCompanies[y], Display: false };
             }
         }
+        arrayCompanies[SelectIndex].CompanySelected = true;
+
         return {
             Countries: state.Countries,
             Cities: arrayCities,
@@ -294,7 +328,36 @@ class List extends Component {
             CityIndex: index
         };
       });
-    return e.currentTarget.dataset.id;
+    //return e.currentTarget.dataset.id;
+  }
+
+  async CompanyhandleCheck(e) {
+    let obj = this.state.Companies.find(x => x.Company === e.currentTarget.dataset.id);
+    let index = this.state.Companies.indexOf(obj);
+    await this.setState(state => {
+        let arrayCompanies = [...state.Companies];
+        let lngCompanies = arrayCompanies.length;
+        let SelectIndex = 0;
+        for (var i = lngCompanies; i >= 0; i--) {
+            arrayCompanies[i] = { ...arrayCompanies[i], CompanySelected: false };
+            if (i === index){
+                arrayCompanies[i] = { ...arrayCompanies[i], Display: true };
+                SelectIndex = i;
+            }else{
+                arrayCompanies[i] = { ...arrayCompanies[i], Display: false };
+            }
+        }
+        arrayCompanies[SelectIndex].CompanySelected = true;
+
+        return {
+            Countries: state.Countries,
+            Cities: state.Cities,
+            Companies: arrayCompanies,
+            CountryIndex: state.CountryIndex,
+            CityIndex: state.CityIndex
+        };
+      });
+    //return e.currentTarget.dataset.id;
   }
 
   render() {
@@ -339,13 +402,13 @@ class List extends Component {
                     <div className="column-1">
                         <div>
                         {this.state.Companies.map(item => (
-                            <div style={{ display: item.Display ? 'block' : 'none' }} className={item.CompanySelected ? 'Selected' : '' } data-id={item.Company} key={item.key}>
+                            <div style={{ display: item.Display ? 'block' : 'none' }} className={item.CompanySelected ? 'Selected' : 'NotSelected' } data-id={item.Company} key={item.key}>
                                 {item.City} {item.Company}
                             </div>
                         ))}
                         </div>
                     </div>
-                    {/*
+                    
                     <div className="column-2">   
                         <SimpleGoogleMap
                             containerElement={
@@ -356,11 +419,12 @@ class List extends Component {
                             }
                         />
                     </div> 
-                    */}   
+                       
+                    {/* 
                     <div className="column-2">
-                        {/*<img src="../public/Simple-Location-Picker.png" alt="map"/>*/}
                         <img src="https://i1.wp.com/www.cssscript.com/wp-content/uploads/2018/03/Simple-Location-Picker.png?fit=561%2C421&ssl=1" alt="map" />
                     </div>
+                    */}
                 </div>
             );
         } else {
