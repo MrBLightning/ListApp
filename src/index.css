@@ -67,9 +67,12 @@ code {
   flex-basis:40%;
   height: 85%;
   width:40%;
-  overflow-y: scroll; 
-  /* padding-left:10px;
+  /* overflow-y: scroll; 
+  padding-left:10px;
   padding-bottom:10px; */
+  overflow:hidden; 
+  /* padding-bottom: 5px;
+  padding-right: 5px; */
   box-sizing: content-box;
   border-radius: 5px 5px 5px 5px;
 }
@@ -110,4 +113,52 @@ img{
   flex-flow: row wrap;
 }
 
+/*These are for the google map element*/
+.Map {
+  /* width: 60vw;
+  height: 81vh;    */
+  width: 33vw;
+  height: 23vh;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
 
+.markerImg{
+  width: 25px;
+  height: 30px;
+  background-image: url('../src/img/marker.png'); 
+  display: 'inline-flex';
+  text-align: 'center';
+  align-items: 'center';
+  justify-content: 'center';
+}
+
+.markerlist{
+  display: flex;
+  background: rgba(255, 255, 255, 0.60);
+  width: 30%;
+  height: 81vh;
+  flex-direction: column;
+  overflow:hidden;
+  overflow-y:scroll;
+}
+
+.markerItem{
+display: flex;
+justify-content: start;
+border-bottom: 1px solid rgba(59, 135, 233, 0.7);
+margin: 2%;
+}
+
+.mrkritmImage{
+align-items: center;
+justify-content: center;
+}
+
+.mrkritmImage img{
+width: 90px;
+height: 90px;
+max-width: 100%;
+border-radius: 50%;
+}
