@@ -294,21 +294,19 @@ class List extends Component {
 
     let arrayCompanies = this.state.Companies;
     let lngCompanies = arrayCompanies.length;
-    let CompIndex = 0;
     for (var i = lngCompanies; i >= 0; i--) {
         arrayCompanies[i] = { ...arrayCompanies[i], CompanySelected: false };
-        if (i === index){
+        if (arrayCompanies[i].City === this.state.Cities[this.state.CityIndex].City){
             arrayCompanies[i] = { ...arrayCompanies[i], Display: true };
-            CompIndex = i;
         }else{
             arrayCompanies[i] = { ...arrayCompanies[i], Display: false };
         }
     }
-    arrayCompanies[CompIndex].CompanySelected = true;
+    arrayCompanies[index].CompanySelected = true;
 
     this.setState({
         Companies: arrayCompanies,
-        CompanyIndex: CompIndex
+        CompanyIndex: index
     })
 
     //return e.currentTarget.dataset.id;
@@ -342,7 +340,7 @@ class List extends Component {
                     <div className="column-1">
                         <div>
                         {this.state.Companies.map(item => (
-                            <div style={{ display: item.Display ? 'block' : 'none' }} className={item.CompanySelected ? 'Selected' : 'NotSelected' } data-id={item.Company} key={item.index}>
+                            <div style={{ display: item.Display ? 'block' : 'none' }}  onClick={this.CompanyhandleCheck} className={item.CompanySelected ? 'Selected' : 'NotSelected' } data-id={item.Company} key={item.index}>
                                 {item.City} {item.Company}
                             </div>
                         ))}
@@ -351,6 +349,7 @@ class List extends Component {
                     <div className="column-2">   
                         <div id="map">
                             {/*<SimpleMap mapSize={{height: '81vh', width: '60vw'}} lat={45.5154586} lng={-122.6793461}/>*/}
+                            {console.log("passed company: ",this.state.Companies[this.state.CompanyIndex].Company)}
                             <SimpleMap Address={this.state.Companies[this.state.CompanyIndex].CompanyAddress}/>
                         </div>
                     </div> 
