@@ -7,6 +7,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
 }
 
 code {
@@ -17,7 +18,8 @@ code {
 /*Css to display lists in flexbox*/
 .Container{
   width: 80%;
-  height: 25%;
+  height: 250px;
+  max-height: 250px;
   display: flex;
   flex-flow: row wrap;
   align-items: flex-start;
@@ -26,16 +28,26 @@ code {
   position: absolute;
   top: 15%;
   left: 10%;
-  /* overflow: hidden;  */
   background-color: white;
   border-radius: 10px 10px 10px 10px;
   box-shadow: 3px 3px 20px rgba(0, 0, 0, .5);
 }
 
+.header-box{
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+  height:33px;
+  font-weight: bold;
+  border-bottom: 1px solid darkgray;
+}
+
+.header {
+  padding: 10px;
+}
+
 .header-1{
   flex: 1 1 0;
-  /* flex-basis:16.6%;  */
-  /* flex-basis:30%; */
   flex-basis:20%;
 }
 
@@ -44,15 +56,19 @@ code {
   flex-basis:40%;
 }
 
+.column-box{
+  display: flex;
+  align-content: stretch;
+  width: 100%;
+  height:216px;
+  overflow: hidden;
+  border-radius: 10px 10px 10px 10px;
+}
+
 .column-1{
   flex: 1 1 0;
-  /* flex-basis:16.6%;  */
-  /* flex-basis:30%; */
-  height: 80%;
   flex-basis:20%;
   overflow-y: scroll;
-  /* padding-left:10px; */
-  padding-bottom:10px;
   color:#007aff;
   padding-top:5px;
   padding-bottom:5px;
@@ -65,14 +81,8 @@ code {
 .column-2{
   flex: 2 1 0;
   flex-basis:40%;
-  height: 85%;
   width:40%;
-  /* overflow-y: scroll; 
-  padding-left:10px;
-  padding-bottom:10px; */
   overflow:hidden; 
-  /* padding-bottom: 5px;
-  padding-right: 5px; */
   box-sizing: content-box;
   border-radius: 5px 5px 5px 5px;
 }
@@ -87,7 +97,6 @@ img{
   color:white; 
   padding-left:10px;
   margin-top:5px;
-  /* margin-bottom:5px; */
   padding-top:5px;
   padding-bottom:5px;
   border-radius: 5px 5px 5px 5px;
@@ -96,16 +105,8 @@ img{
 .NotSelected{
   padding-left:10px;
   margin-top:5px;
-  /* margin-bottom:5px; */
   padding-top:5px;
   padding-bottom:5px;
-}
-
-.header {
-  padding: 10px;
-  padding-bottom: 2px;
-  font-weight: bold;
-  border-bottom: 1px solid black;
 }
 
 .wrapper {
@@ -115,19 +116,17 @@ img{
 
 /*These are for the google map element*/
 .Map {
-  /* width: 60vw;
-  height: 81vh;    */
   width: 33vw;
-  height: 23vh;
+  height: 30vh;
   max-width: 100%;
   max-height: 100%;
   overflow: hidden;
 }
 
 .markerImg{
-  width: 25px;
-  height: 30px;
-  background-image: url('../src/img/marker.png'); 
+  width: 27px;
+  height: 43px;
+  background-image: url('../src/View/marker.png'); 
   display: 'inline-flex';
   text-align: 'center';
   align-items: 'center';
@@ -146,7 +145,6 @@ img{
 
 .markerItem{
 display: flex;
-/*justify-content: start;*/
 flex: start;
 border-bottom: 1px solid rgba(59, 135, 233, 0.7);
 margin: 2%;

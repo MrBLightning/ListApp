@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import SimpleMap from '../src/map';
+import SimpleMap from '../View/map';
+import {sort_array_by, AlphabeticalSort} from '../Controller/functions';
 
 class List extends Component {
     constructor(props) {
@@ -12,8 +13,6 @@ class List extends Component {
             CityIndex: 0,
             CompanyIndex: 0
         };
-        this.sort_array_by = this.sort_array_by.bind(this);
-        this.AlphabeticalSort = this.sort_array_by.bind(this);
         this.parseDataCountries = this.parseDataCountries.bind(this);
         this.parseDataCities = this.parseDataCities.bind(this);
         this.parseDataCompanies = this.parseDataCompanies.bind(this);
@@ -29,119 +28,15 @@ class List extends Component {
       .then(this.onLoad);
   }
 
-  //sort_array_by is a general sorting function for arrays of objects
-  sort_array_by (field, reverse, pr){
-    reverse = (reverse) ? -1 : 1;
-    return function(a,b){
-      a = a[field];
-      b = b[field];
-      if (typeof(pr) != 'undefined'){
-        a = pr(a);
-        b = pr(b);
-      }
-      if (a<b) return reverse * -1;
-      if (a>b) return reverse * 1;
-      return 0;
-    }
-  }  
-
-  //AlphabeticalSort is a function to sort an array of objects by some specific key alphabetically
-  AlphabeticalSort(property) {
-    let sortOrder = 1;
-
-    if(property[0] === "-") {
-        sortOrder = -1;
-        property = property.substr(1);
-    }
-
-    return function (a,b) {
-        if(sortOrder === -1){
-            return b[property].localeCompare(a[property]);
-        }else{
-            return a[property].localeCompare(b[property]);
-        }        
-    }
-  }
-
-  parseDataCountries(data) {
-    let lng = data.length;
-    let CountryList = [];
-    for (var i = 0; i < lng; i++) {
-        let obj = CountryList.find(x => x.Country === data[i].Country);
-        let index = CountryList.indexOf(obj);
-        if(index >= 0){
-            if(CountryList[index].Cities.indexOf(data[i].City) === -1){
-                CountryList[index].Cities.push(data[i].City);
-                CountryList[index].NumOfCities = CountryList[index].Cities.length; 
-            }
-        }
-        else{
-            let CountryListObj = {Country: data[i].Country, CountrySelected: false, NumOfCities: 1, Cities:[data[i].City], key: Math.random() + i};
-            CountryList.push(CountryListObj);
-        }
-    }
-    CountryList.sort(this.sort_array_by('NumOfCities', true, function(a){
-        //Since I'm sorting by NumOfCities which is an integer I need to return a blank integer for the swap needed inside the sort
-        return parseInt(a);
-     }));
-    //make sure after the sort that the first element of the array is picked
-    CountryList[0].CountrySelected =  true;
-    return CountryList;
-  }
-
-  parseDataCities(data) {
-    let lng = data.length;
-    let CityList = [];
-    for (var i = 0; i < lng; i++) {
-        let obj = CityList.find(x => x.City === data[i].City);
-        let index = CityList.indexOf(obj);
-        if(index >= 0){
-            if(CityList[index].Companies.indexOf(data[i].CompanyName) === -1){
-                CityList[index].Companies.push(data[i].CompanyName);
-                CityList[index].NumOfCompanies = CityList[index].Companies.length; 
-            }
-        }
-        else{
-            let CityListObj = {Country: data[i].Country, Display: false, City: data[i].City, CitySelected: false, key: Math.random() + i, NumOfCompanies: 1, Companies:[data[i].CompanyName]};
-            CityList.push(CityListObj);
-        }
-    }
-    CityList.sort(this.sort_array_by('NumOfCompanies', true, function(a){
-        //Since I'm sorting by NumOfCities which is an integer I need to return a blank integer for the swap needed inside the sort
-        return parseInt(a);
-     }));
-     return CityList;
-  }
-
-  parseDataCompanies(data) { 
-    let lng = data.length;
-    let CompanyList = [];
-    for (var i = 0; i < lng; i++) {
-        let obj = CompanyList.find(x => x.CompanyName === data[i].CompanyName);
-        let index = CompanyList.indexOf(obj);
-        if(index < 0){
-            let CompanyListObj = {
-                City: data[i].City, 
-                Display: false, 
-                Company: data[i].CompanyName, 
-                CompanySelected: false, 
-                key: Math.random() + i, 
-                CompanyAddress: data[i].Address + ", " +  data[i].City + ", " + data[i].Country
-            };
-            CompanyList.push(CompanyListObj);
-        }
-    }
-    CompanyList.sort(this.AlphabeticalSort("Company"));
-    return CompanyList;
-  }
-
+  //onLoad accepts the data from clients.json and sorts it into 3 arrays in this.state: Countries, Cities, Companies
   onLoad = data => {
     this.setState({
         Countries: this.parseDataCountries(data.Customers),
         Cities: this.parseDataCities(data.Customers),
         Companies: this.parseDataCompanies(data.Customers)
     });
-    //make sure after the sort that all Cities array elements corresponding to the first country (CountrySelected) are picked
+    //make sure after the sort that all Cities corresponding to the first country (CountrySelected) are displayed 
+    //and the first of them is selected
     let CityList = this.state.Cities;
     let lngCities = CityList.length;
     let CTIndex = 0;
@@ -162,8 +57,9 @@ class List extends Component {
         Cities: CityList,
         CityIndex: CTIndex });
 
-    //make sure after the sort that the first element of the Companies array corresponding to the first city (CitySelected) 
-    //that is corresponding to the first country (CountrySelected) is picked
+    //make sure after the sort that the all Companies corresponding to the first city (CitySelected) 
+    //that is corresponding to the first country (CountrySelected) are displayed 
+    //and the first of them is selected
     let CompanyList = this.state.Companies;
     let lngCompanies = CompanyList.length;
     let CompIndex = 0;
@@ -185,6 +81,93 @@ class List extends Component {
         CompanyIndex: CompIndex });
   };
 
+  //this is the function used to parse the data into this.state.Countries array 
+  parseDataCountries(data) {
+    let lng = data.length;
+    let CountryList = [];
+    for (var i = 0; i < lng; i++) {
+        let obj = CountryList.find(x => x.Country === data[i].Country);
+        let index = CountryList.indexOf(obj);
+        if(index >= 0){
+            if(CountryList[index].Cities.indexOf(data[i].City) === -1){
+                CountryList[index].Cities.push(data[i].City);
+                CountryList[index].NumOfCities = CountryList[index].Cities.length; 
+            }
+        }
+        else{
+            let CountryListObj = {
+                Country: data[i].Country, 
+                CountrySelected: false, 
+                NumOfCities: 1, 
+                Cities:[data[i].City]
+            };
+            CountryList.push(CountryListObj);
+        }
+    }
+    CountryList.sort(sort_array_by('NumOfCities', true, function(a){
+        //Since I'm sorting by NumOfCities which is an integer I need to return a blank integer for the swap needed inside the sort
+        return parseInt(a);
+     }));
+    //make sure after the sort that the first element of the array is selected
+    CountryList[0].CountrySelected =  true;
+    return CountryList;
+  }
+
+  //this is the function used to parse the data into this.state.Cities array 
+  parseDataCities(data) {
+    let lng = data.length;
+    let CityList = [];
+    for (var i = 0; i < lng; i++) {
+        let obj = CityList.find(x => x.City === data[i].City);
+        let index = CityList.indexOf(obj);
+        if(index >= 0){
+            if(CityList[index].Companies.indexOf(data[i].CompanyName) === -1){
+                CityList[index].Companies.push(data[i].CompanyName);
+                CityList[index].NumOfCompanies = CityList[index].Companies.length; 
+            }
+        }
+        else{
+            let CityListObj = {
+                Country: data[i].Country, 
+                Display: false, 
+                City: data[i].City, 
+                CitySelected: false, 
+                NumOfCompanies: 1, 
+                Companies:[data[i].CompanyName]
+            };
+            CityList.push(CityListObj);
+        }
+    }
+    CityList.sort(sort_array_by('NumOfCompanies', true, function(a){
+        //Since I'm sorting by NumOfCities which is an integer I need to return a blank integer for the swap needed inside the sort
+        return parseInt(a);
+     }));
+     return CityList;
+  }
+
+  //this is the function used to parse the data into this.state.Companies array
+  parseDataCompanies(data) { 
+    let lng = data.length;
+    let CompanyList = [];
+    for (var i = 0; i < lng; i++) {
+        let obj = CompanyList.find(x => x.CompanyName === data[i].CompanyName);
+        let index = CompanyList.indexOf(obj);
+        if(index < 0){
+            let CompanyListObj = {
+                City: data[i].City, 
+                Display: false, 
+                Company: data[i].CompanyName, 
+                CompanySelected: false, 
+                CompanyAddress: data[i].Address + ", " +  data[i].City + ", " + data[i].Country
+            };
+            CompanyList.push(CompanyListObj);
+        }
+    }
+    CompanyList.sort(AlphabeticalSort("Company"));
+    return CompanyList;
+  }
+
+  //this is the function used to handle Country Click
   CountryhandleCheck(e) {
     let obj = this.state.Countries.find(x => x.Country === e.currentTarget.dataset.id);
     let index = this.state.Countries.indexOf(obj);
@@ -234,19 +217,19 @@ class List extends Component {
     }
     arrayCompanies[CompIndex].CompanySelected = true;
 
-    //set the new state for all 3 arrays
+    //set the new state for Countries, Cities and Companies arrays
     this.setState({ 
         Countries: arrayCountries,
         Cities: arrayCities,
         Companies: arrayCompanies,
         CountryIndex: index,
         CityIndex: CTIndex, 
-        CompanyIndex: CompIndex})    
-    //console.log(e.currentTarget);
-    //return e.currentTarget.dataset.id;
+        CompanyIndex: CompIndex
+    })    
   }
 
-   CityhandleCheck(e) {
+  //this is the function used to handle City Click
+  CityhandleCheck(e) {
     let obj = this.state.Cities.find(x => x.City === e.currentTarget.dataset.id);
     let index = this.state.Cities.indexOf(obj);
 
@@ -278,16 +261,16 @@ class List extends Component {
     }
     arrayCompanies[CompIndex].CompanySelected = true;
 
-    //set the new state for 2 arrays
+    //set the new state for Cities and Companies arrays
     this.setState({ 
         Cities: arrayCities,
         Companies: arrayCompanies,
         CityIndex: CTIndex, 
-        CompanyIndex: CompIndex }) 
-
-    //return e.currentTarget.dataset.id;
+        CompanyIndex: CompIndex 
+    }) 
   }
 
+  //this is the function used to handle Company Click
   CompanyhandleCheck(e) {
     let obj = this.state.Companies.find(x => x.Company === e.currentTarget.dataset.id);
     let index = this.state.Companies.indexOf(obj);
@@ -304,67 +287,57 @@ class List extends Component {
     }
     arrayCompanies[index].CompanySelected = true;
 
+    //set the new state for the Companies arrays
     this.setState({
         Companies: arrayCompanies,
         CompanyIndex: index
     })
-
-    //return e.currentTarget.dataset.id;
   }
 
+  //This is the render where the content is actually drawn
   render() {
     if (this.state.Countries){ 
         if(this.state.Countries.length > 0){
             return (
                 <div className="Container">
-                    <div className="header-1"><div className="header">Countries</div></div>
-                    <div className="header-1"><div className="header">Cities</div></div>
-                    <div className="header-1"><div className="header">Companies</div></div>
-                    <div className="header-2"><div className="header">Map</div></div>
-                    <div className="column-1">
-                        {this.state.Countries.map(item => (
-                            <div onClick={this.CountryhandleCheck} className={item.CountrySelected ? 'Selected' : 'NotSelected' } data-id={item.Country} key={item.index}>
-                            {/*console.log(item.Country, item.CountrySelected)*/}        
-                            {item.Country} {item.NumOfCities}
-                            </div>
-                        ))}
+                    <div className="header-box">
+                        <div className="header-1"><div className="header">Countries</div></div>
+                        <div className="header-1"><div className="header">Cities</div></div>
+                        <div className="header-1"><div className="header">Companies</div></div>
+                        <div className="header-2"><div className="header">Map</div></div>
                     </div>
-                    <div className="column-1">
-                        {this.state.Cities.map(item => (
-                            <div style={{ display: item.Display ? 'block' : 'none' }} onClick={this.CityhandleCheck} className={ item.CitySelected ? 'Selected' : 'NotSelected' } data-id={item.City} key={item.index}>
-                            {/*console.log(item.City, item.CitySelected)*/}        
-                            {item.Country} {item.City} {item.NumOfCompanies}
-                            </div>
-                        ))}
-                    </div> 
-                    <div className="column-1">
-                        <div>
-                        {this.state.Companies.map(item => (
-                            <div style={{ display: item.Display ? 'block' : 'none' }}  onClick={this.CompanyhandleCheck} className={item.CompanySelected ? 'Selected' : 'NotSelected' } data-id={item.Company} key={item.index}>
-                                {item.City} {item.Company}
-                            </div>
-                        ))}
+                    <div className="column-box">
+                        <div className="column-1">
+                            {this.state.Countries.map(item => (
+                                <div onClick={this.CountryhandleCheck} className={item.CountrySelected ? 'Selected' : 'NotSelected' } data-id={item.Country} key={Math.random()}>
+                                    {item.Country}
+                                </div>
+                            ))}
                         </div>
-                    </div>
-                    <div className="column-2">   
-                        <div id="map">
-                            {/*<SimpleMap mapSize={{height: '81vh', width: '60vw'}} lat={45.5154586} lng={-122.6793461}/>*/}
-                            {console.log("passed company: ",this.state.Companies[this.state.CompanyIndex].Company)}
+                        <div className="column-1">
+                            {this.state.Cities.map(item => (
+                                <div style={{ display: item.Display ? 'block' : 'none' }} onClick={this.CityhandleCheck} className={ item.CitySelected ? 'Selected' : 'NotSelected' } data-id={item.City} key={Math.random()}>
+                                    {item.City} 
+                                </div>
+                            ))}
+                        </div> 
+                        <div className="column-1">
+                            {this.state.Companies.map(item => (
+                                <div style={{ display: item.Display ? 'block' : 'none' }}  onClick={this.CompanyhandleCheck} className={item.CompanySelected ? 'Selected' : 'NotSelected' } data-id={item.Company} key={Math.random()}>
+                                    {item.Company}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="column-2">   
                             <SimpleMap Address={this.state.Companies[this.state.CompanyIndex].CompanyAddress}/>
-                        </div>
-                    </div> 
+                        </div> 
+                    </div>
                 </div>
             );
         } else {
             return <div className="Container">Loading...</div>;
         }  
-    } else {
-        this.renderLoading();
-    }
-  }
-
-  renderLoading() {
-    return <div>Loading...</div>;
+    } 
   }
 }
 
